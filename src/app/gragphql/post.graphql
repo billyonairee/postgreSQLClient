@@ -1,0 +1,36 @@
+query Posts {
+    posts {
+        id
+        title
+        comment
+    }
+}
+
+query	post($postId: Int!){
+    post(postId: $postId) {
+      id
+      title
+      comment
+    }
+}
+
+mutation addPost($PostInput: PostInput!){
+  addPost(post: $PostInput){
+    id
+    title
+    comment
+  }
+}
+
+mutation deletePost($postId: Int!){
+  deletePost(postId: $postId){
+    affected
+  }
+}
+
+mutation updatePost($PostInput: PostInput!){
+  updatePost(post: $PostInput){
+    affected
+  }
+}
+
