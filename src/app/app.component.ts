@@ -31,7 +31,7 @@ export class AppComponent implements OnInit {
     private updatePostGQL: UpdatePostGQL
   ) { }
 
-  // post$: Observable<Post>;
+  post$: Observable<Post>;
 
   loading: boolean
 
