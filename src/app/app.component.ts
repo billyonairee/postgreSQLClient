@@ -3,9 +3,10 @@ import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
 // import { Post } from './post'
 import { pluck, tap, map } from 'rxjs/operators'
-import { Observable } from 'rxjs'
+import { Observable, of } from 'rxjs'
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { PostsGQL, AddPostGQL, Post, PostGQL, DeletePostGQL, UpdatePostGQL } from './graphql/gragphql';
+import { PostsGQL, AddPostGQL, PostGQL, DeletePostGQL, UpdatePostGQL } from './graphql/gragphql';
+import { Post, Query, PostInput } from './graphql/gragphql';
 
 
 type Post1 = (Post & { __typename: string })
@@ -28,12 +29,11 @@ export class AppComponent implements OnInit {
     private postGQL: PostGQL,
     private addPostGQL: AddPostGQL,
     private deletePostGQL: DeletePostGQL,
-    private updatePostGQL: UpdatePostGQL
+    private updatePostGQL: UpdatePostGQL,
   ) { }
 
   post$: Observable<Post>;
 
-  loading: boolean
 
   res$: Data$
 
@@ -47,7 +47,7 @@ export class AppComponent implements OnInit {
 
   // postList$: Observable<PostsQuery>
   postList$: Observable<Post>
-  post$: Data$
+  // post$: Data$
   newPost$: Data$
 
   postIdByInput = 1;
@@ -64,99 +64,113 @@ export class AppComponent implements OnInit {
     this._getPostList()
   }
 
-  //Post List 
-  getPostList() {
-    this.postList$ = this.apollo.watchQuery({
-      query: getPosts
-    })
-      .valueChanges
-      .pipe(
-        pluck("data", "posts")
-      )
-  }
+  // //Post List 
+  // getPostList() {
+  //   this.postList$ = this.apollo.watchQuery({
+  //     query: getPosts
+  //   })
+  //     .valueChanges
+  //     .pipe(
+  //       pluck("data", "posts")
+  //     )
+  // }
 
-  //Post List By Id
-  getPostById() {
-    this.post$ = this.apollo.watchQuery({
-      query: getPost,
-      variables: { 'postId': this.postIdByInput }
-    })
-      .valueChanges
-  }
+  // //Post List By Id
+  // getPostById() {
+  //   this.post$ = this.apollo.watchQuery({
+  //     query: getPost,
+  //     variables: { 'postId': this.postIdByInput }
+  //   })
+  //     .valueChanges
+  // }
 
-  //Add Post
-  addPost() {
-    this.newPost$ = this.apollo.mutate({
-      mutation: addPost,
-      variables: {
-        PostInput: {
-          title: this.title,
-          comment: this.comment
-        }
-      },
-      update: (store, { data: { addPost } }) => {
-        this._snackBar.open(`successful added ${addPost.title}`, "Add", {
-          duration: 2000,
-        });
-        const data = store.readQuery({ query: getPosts })
-        data.posts.push(addPost)
-        store.writeQuery({ query: getPosts, data })
-      }
-    })
-  }
+  // //Add Post
+  // addPost() {
+  //   this.newPost$ = this.apollo.mutate({
+  //     mutation: addPost,
+  //     variables: {
+  //       PostInput: {
+  //         title: this.title,
+  //         comment: this.comment
+  //       }
+  //     },
+  //     update: (store, { data: { addPost } }) => {
+  //       this._snackBar.open(`successful added ${addPost.title}`, "Add", {
+  //         duration: 2000,
+  //       });
+  //       const data = store.readQuery({ query: getPosts })
+  //       data.posts.push(addPost)
+  //       store.writeQuery({ query: getPosts, data })
+  //     }
+  //   })
+  // }
 
-  // Delete Post 
-  deletePost() {
-    this.deletedPost$ = this.apollo.mutate({
-      mutation: deletePost,
-      variables: { postId: this.deleteInput },
-      update: (store) => {
-        const data = store.readQuery({ query: getPosts })
-        const deletedIdx = data.posts.findIndex(i => Number(i.id) === this.deleteInput)
-        data.posts.splice(deletedIdx, 1)
-        store.writeQuery({ query: getPosts, data })
-      }
-    })
-  }
+  // // Delete Post 
+  // deletePost() {
+  //   this.deletedPost$ = this.apollo.mutate({
+  //     mutation: deletePost,
+  //     variables: { postId: this.deleteInput },
+  //     update: (store) => {
+  //       const data = store.readQuery({ query: getPosts })
+  //       const deletedIdx = data.posts.findIndex(i => Number(i.id) === this.deleteInput)
+  //       data.posts.splice(deletedIdx, 1)
+  //       store.writeQuery({ query: getPosts, data })
+  //     }
+  //   })
+  // }
 
-  edit: boolean = false;
-  editBtn() {
-    this.edit = true;
-  }
+  // edit: boolean = false;
+  // editBtn() {
+  //   this.edit = true;
+  // }
 
-  finishedEdit(id, title, comment) {
-    this.edit = false;
-    this.editPost(id, title, comment)
-  }
+  // finishedEdit(id, title, comment) {
+  //   this.edit = false;
+  //   this.editPost(id, title, comment)
+  // }
 
-  editedPost$;
-  editPost(id, title, comment) {
-    this.editedPost$ = this.apollo.mutate({
-      mutation: updatePost,
-      variables: {
-        PostInput: {
-          id: id,
-          title: title,
-          comment: comment
-        }
-      },
-      update: (store) => {
-        const data = store.readQuery({ query: this.postsGQL.document })
-        const editedIdx = data.posts.findIndex(i => i.id === id)
-        Object.assign(data.posts[editedIdx], {
-          id: id,
-          title: title,
-          comment: comment
-        })
-        store.writeQuery({ query: getPosts, data })
-      }
-    })
-  }
+  // editedPost$;
+  // editPost(id, title, comment) {
+  //   this.editedPost$ = this.apollo.mutate({
+  //     mutation: updatePost,
+  //     variables: {
+  //       PostInput: {
+  //         id: id,
+  //         title: title,
+  //         comment: comment
+  //       }
+  //     },
+  //     update: (store) => {
+  //       const data = store.readQuery({ query: this.postsGQL.document })
+  //       const editedIdx = data.posts.findIndex(i => i.id === id)
+  //       Object.assign(data.posts[editedIdx], {
+  //         id: id,
+  //         title: title,
+  //         comment: comment
+  //       })
+  //       store.writeQuery({ query: getPosts, data })
+  //     }
+  //   })
+  // }
+
+
+  //All
+  loading$: Observable<boolean>
+  selectedPost;
+  postEditing = false;
+  status = "default"
+  _postList$: Observable<Post[]>;
+  _title;
+  _comment;
+  _addedPost$: Observable<Post>;
+  _deletedPost$;
+  _editedPost$;
 
   _getPostList() {
-    this.postsGQL.watch().valueChanges.subscribe(r => { this.loading = r.loading; this._postList$ = r.data.posts })
-    // this._postList$ = this.postsGQL.watch().valueChanges.pipe(pluck("data", "posts"))
+    this._postList$ = this.postsGQL.watch().valueChanges.pipe(pluck("data", "posts"))
+    this.loading$ = this.postsGQL.watch().valueChanges.pipe(pluck("loading")).pipe()
   }
+  // of observable boolean
 
   _getPostById(id) {
     this.selectedPost = this.postGQL.watch({
@@ -167,7 +181,7 @@ export class AppComponent implements OnInit {
   }
 
   _addPost() {
-    this.addPostGQL.mutate({
+    this._addedPost$ = this.addPostGQL.mutate({
       PostInput: {
         title: this._title,
         comment: this._comment
@@ -178,53 +192,47 @@ export class AppComponent implements OnInit {
           this._snackBar.open(`successful added ${addPost.title}`, "Add", {
             duration: 2000,
           });
-          const data = store.readQuery({ query: this.postsGQL.document })
+          const data: Query = store.readQuery({ query: this.postsGQL.document })
           data.posts.push(addPost)
           store.writeQuery({ query: getPosts, data })
           this.selectedPost = addPost
+          this.status = "detail"
         }
       }
-    ).subscribe()
+    ).pipe(pluck("data", "addPost"))
   }
 
   _deletePost() {
     const deletedId = Number(this.selectedPost.id)
-    this.deletePostGQL.mutate({
+    this._deletedPost$ = this.deletePostGQL.mutate({
       postId: deletedId
     },
       {
         update: (store) => {
-          const data = store.readQuery({ query: this.postsGQL.document })
+          const data: Query = store.readQuery({ query: this.postsGQL.document })
           const deletedIdx = data.posts.findIndex(i => Number(i.id) === deletedId)
           data.posts.splice(deletedIdx, 1)
           store.writeQuery({ query: getPosts, data })
         }
       }
-    ).subscribe()
+    )
   }
-  // of observable boolean
 
   _editPost() {
     delete this.selectedPost.__typename
-    this.updatePostGQL.mutate({
+    this._editedPost$ = this.updatePostGQL.mutate({
       PostInput: this.selectedPost
     }, {
       update: (store) => {
-        const data = store.readQuery({ query: this.postsGQL.document })
+        const data: Query = store.readQuery({ query: this.postsGQL.document })
         const editedIdx = data.posts.findIndex(i => i.id === this.selectedPost.id)
         Object.assign(data.posts[editedIdx], this.selectedPost, { __typename: "Post" })
         store.writeQuery({ query: getPosts, data })
       }
-    }).subscribe()
+    })
   }
 
-  //All
-  selectedPost;
-  postEditing = false;
-  status = "default"
-  _postList$: Observable<Post[]>;
-  _title;
-  _comment;
+
 
   clickPost(post) {
     // this._getPostById(postId)
@@ -246,7 +254,6 @@ export class AppComponent implements OnInit {
     this._addPost()
     this._title = undefined;
     this._comment = undefined;
-    this.status = "detail"
   }
   postDelete() {
     this._deletePost()

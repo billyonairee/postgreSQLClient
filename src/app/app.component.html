@@ -1,6 +1,7 @@
 <!-- <pre>
   {{currentPost$ | async | json}}
 </pre> -->
+<div style="display: none">{{_deletedPost$ | async}}</div>
 <mat-tab-group>
 
   <mat-tab label="All">
@@ -8,13 +9,14 @@
 
       <div class="cardList">
         <h1>Post List</h1>
-        <div style="display: flex; justify-content: center;" *ngIf="loading">
+        <!-- <div style="display: flex; justify-content: center;" *ngIf="loading">
           <mat-spinner></mat-spinner>
         </div>
-        <ng-container *ngIf="!loading">
-          <ng-container>
-            <!-- <ng-container *ngIf="(_postList$ | async) as posts"> -->
-            <div *ngFor="let post of _postList$">
+        <ng-container *ngIf="!loading"> -->
+        <ng-container>
+          <!-- <ng-container> -->
+          <ng-container *ngIf="(_postList$ | async) as posts">
+            <div *ngFor="let post of posts">
               <mat-card (click)="clickPost(post)">
                 <h3>{{post.title}}</h3>
                 <span>{{post.comment}}</span>
@@ -64,6 +66,7 @@
             <button mat-raised-button color="primary" (click)="goDefault()">Cancel</button>
           </div>
         </ng-container>
+        <div style="display: none">{{_editedPost$ | async}}</div>
 
 
         <ng-container *ngIf="status === 'addPost'">
@@ -80,7 +83,8 @@
             <button mat-raised-button color="primary" (click)="goDefault()">Cancel</button>
           </div>
         </ng-container>
-
+        <!-- <div style="display: none">{{_addedPost$ | async}}</div> -->
+        <div>{{_addedPost$ | async | json}}</div>
 
       </div>
     </div>
